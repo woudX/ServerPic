@@ -1,0 +1,25 @@
+{
+    "zip_config": {
+        "extract_command": "unzip -u", 
+        "extract_directory": "uploads/zipped/", 
+        "zip_filter_regex": "(\\.png)|(\\.jpg)|(\\.jpeg)"
+    }, 
+    "main_config": {
+        "file_save_directory": "uploads/projects/", 
+        "file_override": 3, 
+        "pic_size": [{
+				"type":"large",
+				"width":"1920", 
+				"height":"1080"
+			}, {
+				"type":"meidum",
+				"width":"1366", 
+				"height":"768"
+			}, {
+				"type":"small",
+				"width":"960", 
+				"height":"540"
+			}
+		]
+    }
+}
