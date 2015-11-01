@@ -1,6 +1,6 @@
 Server Pic
 =======
-This project is used for **processing picturn on linux server** (using **c++** as main language)  
+This project is used for **processing picture on linux server** (using **c++** as main language)  
 
 Before using this program, you should configurate the environment according to below:
   * git  
@@ -10,7 +10,7 @@ Before using this program, you should configurate the environment according to b
 
 Install git (ubuntu)
 -------
-`sudo apt-get install git`  
+`$ sudo apt-get install git`  
 
 Install opencv (ubuntu)
 -------
@@ -24,13 +24,13 @@ donwload opencv for linux from http://opencv.org/downloads.html
 `$ sudo make install`  
 `$ sudo gedit /etc/ld.so.conf.d/opencv.conf`  
 
-add below to tail of file  
+**add below to tail of file**  
 `/usr/local/lib`  
 
 `sudo ldconfig`  
 `sudo gedit /etc/bash.bashrc`  
 
-add below to tail of file  
+**add below to tail of file**  
 `PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig`  
 `export PKG_CONFIG_PATH`  
 
@@ -45,6 +45,6 @@ Install json-c (ubuntu)
 `$ sh autogen.sh`  
 
 followed by  
-`$ ./configure`
-`$ make`
-`$ make install`
+`$ ./configure`  
+`$ make`  
+`$ make install`  
