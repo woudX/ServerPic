@@ -34,8 +34,8 @@ donwload opencv for linux from http://opencv.org/downloads.html
 `PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/local/lib/pkgconfig`  
 `export PKG_CONFIG_PATH`  
 
-`sudo source /etc/bash.bashrc`
-`sudo updatedb`
+`sudo source /etc/bash.bashrc`  
+`sudo updatedb`  
 
 Install json-c (ubuntu)   
 -------
