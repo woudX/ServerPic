@@ -52,6 +52,7 @@ void CreateProc::Run()
     //  Resize and copy files
     for (auto itor = setting->pic_size->begin(); itor != setting->pic_size->end(); ++itor)
         _ResizeAndCopyFiles(itor->first, itor->second->x, itor->second->y);
+
 }
 
 void CreateProc::_RenameFiles()
@@ -103,6 +104,10 @@ void CreateProc::_ResizeAndCopyFiles(string folderName, int width, int height)
         //  output
         string outputFilename = objDir + filename;
         imwrite(outputFilename.c_str(), outputPic);
+
+        //  release
+        inputPic.release();
+        outputPic.release();
     }
 }
 

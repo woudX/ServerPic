@@ -27,11 +27,8 @@ AppSetting::AppSetting()
 
 }
 
-void AppSetting::Load(string filename)
+void AppSetting::Load(JsonObject *jsonObj)
 {
-    JsonObject *jsonObj = new JsonObject();
-    jsonObj->LoadFromFile(filename);
-
     //  Load zip_config
     JsonObject *zipConfig = jsonObj->GetObjectVal<JsonObject>("zip_config");
     ext_cmd = zipConfig->GetStringVal("extract_command");
@@ -58,8 +55,6 @@ void AppSetting::Load(string filename)
     }
     safe_del(picJsonArr);
     safe_del(mainConfig);
-
-    safe_del(jsonObj);
 }
 
 AppSetting::~AppSetting()

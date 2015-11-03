@@ -15,7 +15,7 @@ CXX           = g++
 DEFINES       = 
 CFLAGS        = -pipe -g -Wall -W -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=c++0x -Wall -W -fPIC $(DEFINES)
-INCPATH       = -I../../ServerPic -I. -I/usr/local/include/opencv -I/usr/local/include/json-c -I../../../../Qt5.5.1/5.5/gcc_64/mkspecs/linux-g++
+INCPATH       = -I../../ServerPic -I. -I/usr/local/include/opencv -I/usr/local/include/json-c -I/usr/local/include -I../../../../Qt5.5.1/5.5/gcc_64/mkspecs/linux-g++
 QMAKE         = /home/woud/Qt5.5.1/5.5/gcc_64/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -36,7 +36,7 @@ DISTNAME      = ServerPic1.0.0
 DISTDIR = /home/woud/Projects/git/ServerPic/Build/.tmp/ServerPic1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-rpath,/home/woud/Qt5.5.1/5.5/gcc_64
-LIBS          = $(SUBLIBS) -L/usr/local/lib -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lopencv_hal -ljson-c 
+LIBS          = $(SUBLIBS) -L/usr/local/lib -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core -lopencv_hal -ljson-c -lcurl 
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -57,7 +57,8 @@ SOURCES       = ../main.cpp \
 		../opencvex.cpp \
 		../jsonx.cpp \
 		../createproc.cpp \
-		../function.cpp 
+		../function.cpp \
+		../network.cpp 
 OBJECTS       = main.o \
 		global.o \
 		zextractor.o \
@@ -67,7 +68,8 @@ OBJECTS       = main.o \
 		opencvex.o \
 		jsonx.o \
 		createproc.o \
-		function.o
+		function.o \
+		network.o
 DIST          = /home/Qt5.5.1/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/Qt5.5.1/5.5/gcc_64/mkspecs/common/unix.conf \
 		/home/Qt5.5.1/5.5/gcc_64/mkspecs/common/linux.conf \
@@ -206,7 +208,8 @@ DIST          = /home/Qt5.5.1/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		opencvex.h \
 		jsonx.h \
 		createproc.h \
-		function.h ../main.cpp \
+		function.h \
+		network.h ../main.cpp \
 		../global.cpp \
 		../zextractor.cpp \
 		../filesys.cpp \
@@ -215,7 +218,8 @@ DIST          = /home/Qt5.5.1/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		../opencvex.cpp \
 		../jsonx.cpp \
 		../createproc.cpp \
-		../function.cpp
+		../function.cpp \
+		../network.cpp
 QMAKE_TARGET  = ServerPic
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = ServerPic
@@ -552,6 +556,37 @@ main.o: ../main.cpp
 
 global.o: ../global.cpp ../global.h \
 		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -563,12 +598,50 @@ global.o: ../global.cpp ../global.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
 		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h \
 		../jsonx.h \
 		../convert.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o global.o ../global.cpp
 
 zextractor.o: ../zextractor.cpp ../zextractor.h \
 		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -580,12 +653,50 @@ zextractor.o: ../zextractor.cpp ../zextractor.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
 		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h \
 		../global.h \
 		../filesys.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o zextractor.o ../zextractor.cpp
 
 filesys.o: ../filesys.cpp ../filesys.h \
 		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -597,26 +708,49 @@ filesys.o: ../filesys.cpp ../filesys.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
 		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h \
 		../convert.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o filesys.o ../filesys.cpp
 
 convert.o: ../convert.cpp ../convert.h \
 		../stdafx.h \
-		/usr/local/include/json-c/json.h \
-		/usr/local/include/json-c/debug.h \
-		/usr/local/include/json-c/linkhash.h \
-		/usr/local/include/json-c/json_object.h \
-		/usr/local/include/json-c/json_inttypes.h \
-		/usr/local/include/json-c/json_config.h \
-		/usr/local/include/json-c/arraylist.h \
-		/usr/local/include/json-c/json_util.h \
-		/usr/local/include/json-c/json_tokener.h \
-		/usr/local/include/json-c/json_object_iterator.h \
-		/usr/local/include/json-c/json_c_version.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o convert.o ../convert.cpp
-
-assist.o: ../assist.cpp ../assist.h \
-		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -628,26 +762,102 @@ assist.o: ../assist.cpp ../assist.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
 		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o convert.o ../convert.cpp
+
+assist.o: ../assist.cpp ../assist.h \
+		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
+		/usr/local/include/json-c/json.h \
+		/usr/local/include/json-c/debug.h \
+		/usr/local/include/json-c/linkhash.h \
+		/usr/local/include/json-c/json_object.h \
+		/usr/local/include/json-c/json_inttypes.h \
+		/usr/local/include/json-c/json_config.h \
+		/usr/local/include/json-c/arraylist.h \
+		/usr/local/include/json-c/json_util.h \
+		/usr/local/include/json-c/json_tokener.h \
+		/usr/local/include/json-c/json_object_iterator.h \
+		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h \
 		../convert.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o assist.o ../assist.cpp
 
 opencvex.o: ../opencvex.cpp ../opencvex.h \
 		../stdafx.h \
-		/usr/local/include/json-c/json.h \
-		/usr/local/include/json-c/debug.h \
-		/usr/local/include/json-c/linkhash.h \
-		/usr/local/include/json-c/json_object.h \
-		/usr/local/include/json-c/json_inttypes.h \
-		/usr/local/include/json-c/json_config.h \
-		/usr/local/include/json-c/arraylist.h \
-		/usr/local/include/json-c/json_util.h \
-		/usr/local/include/json-c/json_tokener.h \
-		/usr/local/include/json-c/json_object_iterator.h \
-		/usr/local/include/json-c/json_c_version.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o opencvex.o ../opencvex.cpp
-
-jsonx.o: ../jsonx.cpp ../jsonx.h \
-		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -659,11 +869,102 @@ jsonx.o: ../jsonx.cpp ../jsonx.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
 		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o opencvex.o ../opencvex.cpp
+
+jsonx.o: ../jsonx.cpp ../jsonx.h \
+		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
+		/usr/local/include/json-c/json.h \
+		/usr/local/include/json-c/debug.h \
+		/usr/local/include/json-c/linkhash.h \
+		/usr/local/include/json-c/json_object.h \
+		/usr/local/include/json-c/json_inttypes.h \
+		/usr/local/include/json-c/json_config.h \
+		/usr/local/include/json-c/arraylist.h \
+		/usr/local/include/json-c/json_util.h \
+		/usr/local/include/json-c/json_tokener.h \
+		/usr/local/include/json-c/json_object_iterator.h \
+		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h \
 		../convert.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o jsonx.o ../jsonx.cpp
 
 createproc.o: ../createproc.cpp ../createproc.h \
 		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -675,6 +976,13 @@ createproc.o: ../createproc.cpp ../createproc.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
 		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h \
 		../global.h \
 		../function.h \
 		../filesys.h \
@@ -684,6 +992,37 @@ createproc.o: ../createproc.cpp ../createproc.h \
 
 function.o: ../function.cpp ../function.h \
 		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
 		/usr/local/include/json-c/json.h \
 		/usr/local/include/json-c/debug.h \
 		/usr/local/include/json-c/linkhash.h \
@@ -694,8 +1033,68 @@ function.o: ../function.cpp ../function.h \
 		/usr/local/include/json-c/json_util.h \
 		/usr/local/include/json-c/json_tokener.h \
 		/usr/local/include/json-c/json_object_iterator.h \
-		/usr/local/include/json-c/json_c_version.h
+		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o function.o ../function.cpp
+
+network.o: ../network.cpp ../network.h \
+		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
+		/usr/local/include/json-c/json.h \
+		/usr/local/include/json-c/debug.h \
+		/usr/local/include/json-c/linkhash.h \
+		/usr/local/include/json-c/json_object.h \
+		/usr/local/include/json-c/json_inttypes.h \
+		/usr/local/include/json-c/json_config.h \
+		/usr/local/include/json-c/arraylist.h \
+		/usr/local/include/json-c/json_util.h \
+		/usr/local/include/json-c/json_tokener.h \
+		/usr/local/include/json-c/json_object_iterator.h \
+		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o network.o ../network.cpp
 
 ####### Install
 

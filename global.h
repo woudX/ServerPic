@@ -3,6 +3,8 @@
 
 #include "stdafx.h"
 
+class JsonObject;
+
 class Vector2d
 {
 public:
@@ -23,7 +25,7 @@ public:
      * @brief Load AppSetting
      * @param filename
      */
-    void Load(string filename);
+    void Load(JsonObject *jsonObj);
 
     string ext_cmd;
     string ext_dir;
