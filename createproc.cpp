@@ -4,6 +4,8 @@
 #include "filesys.h"
 #include "zextractor.h"
 #include "assist.h"
+#include "jsonx.h"
+#include "opencvex.h"
 
 CreateProc::CreateProc()
 {
@@ -50,9 +52,44 @@ void CreateProc::Run()
     _RenameFiles();
 
     //  Resize and copy files
+    JsonObject *projData = new JsonObject();
+    projData->Add("pid",3);
+
+    JsonArray *pages = new JsonArray();
+    projData->AddObject("pages", pages);
+
+    for (auto fileItor = _filesMapping->begin(); fileItor != _filesMapping->end(); ++fileItor)
+    {
+        JsonObject *singleFile = new JsonObject();
+
+        string srcFilename = FileSys::GetFilename(fileItor->first);
+        string saveFilename = FileSys::GetFilename(fileItor->second);
+
+        singleFile->Add("filename", srcFilename);
+        singleFile->Add("savename", saveFilename);
+        singleFile->Add("imagedir", FileSys::GetFileDirectory(fileItor->first));
+
+        for (auto sizeItor = setting->pic_size->begin(); sizeItor != setting->pic_size->end(); ++sizeItor)
+        {
+            string optDir = FileSys::FormatDir(_leveloffDir + sizeItor->first);
+            OpencvEx::ResizePictureFile(fileItor->first, optDir + srcFilename, sizeItor->second->x, sizeItor->second->y);
+
+            singleFile->Add("image" + sizeItor->first, optDir);
+        }
+
+        pages->AddObject(singleFile);
+        safe_del(singleFile);
+    }
+    projData->SaveToFile("output.json");
+
+    safe_del(pages);
+    safe_del(projData);
+
+
+/*
     for (auto itor = setting->pic_size->begin(); itor != setting->pic_size->end(); ++itor)
         _ResizeAndCopyFiles(itor->first, itor->second->x, itor->second->y);
-
+*/
 }
 
 void CreateProc::_RenameFiles()

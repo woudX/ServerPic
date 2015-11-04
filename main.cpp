@@ -11,19 +11,28 @@ void ExtractZipFile(char *filename);
 
 int main(int argc, char* argv[])
 {
-    //string req = Network::Request("http://192.168.89.1/Test/config.json");
+    //  Get system config
+    HttpRequest *getConfigJsonReq = new HttpRequestGet("http://192.168.89.1/Test/config.json");
+    getConfigJsonReq->contentType = HttpContentType::Json;
+    getConfigJsonReq->Connect();
 
+    //  Loading config
     AppSetting *setting = AppSetting::Instance();
     JsonObject *jsonObj = new JsonObject();
-    jsonObj->LoadFromFile("config.json");
+    jsonObj->LoadFromText(getConfigJsonReq->text);
     setting->Load(jsonObj);
-    safe_del(jsonObj);
 
+    //  Release memory
+    safe_del(jsonObj);
+    safe_del(getConfigJsonReq);
+
+    //  Working
     if (argc == 1)
         ExtractZipFile("Desktop.zip");
     else
         ExtractZipFile(argv[1]);
 
+    //  Release mem and exit
     safe_del(setting);
     return 0;
 }

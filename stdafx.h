@@ -39,8 +39,10 @@ using namespace cv;
 
 #ifdef Debug
     #define debug_log(format, ...) err_log(format, __VA_ARGS__)
+    #define debug_mode 1
 #else
     #define debug_log(format, ...)
+    #define debug_mode 0
 #endif
 
 

@@ -7,6 +7,7 @@ class OpencvEx
 {
 public:
     OpencvEx();
+    static void ResizePictureFile(string src, string opt, int width, int height);
 };
 
 #endif // OPENCVEX_H
