@@ -8,6 +8,7 @@ class HttpContentType
 public:
     static string Json;
     static string Text;
+    static string Xml;
     static string FormData;
 };
 
@@ -16,7 +17,7 @@ class HttpRequest
 public:
     HttpRequest();
     HttpRequest(string pUrl);
-    ~HttpRequest();
+    virtual ~HttpRequest();
 
     HttpRequest *AddParam(string key, string val);
 
@@ -65,6 +66,8 @@ public:
 
     virtual string Connect();
     virtual void Callback(string retText);
+
+    virtual ~HttpRequestGet();
 };
 
 class HttpRequestPost : public HttpRequest
@@ -73,6 +76,7 @@ public:
     HttpRequestPost(string pUrl);
 
     virtual string Connect();
+    virtual ~HttpRequestPost();
 
 };
 

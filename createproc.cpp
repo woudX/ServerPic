@@ -84,12 +84,6 @@ void CreateProc::Run()
 
     safe_del(pages);
     safe_del(projData);
-
-
-/*
-    for (auto itor = setting->pic_size->begin(); itor != setting->pic_size->end(); ++itor)
-        _ResizeAndCopyFiles(itor->first, itor->second->x, itor->second->y);
-*/
 }
 
 void CreateProc::_RenameFiles()

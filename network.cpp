@@ -2,7 +2,9 @@
 
 string HttpContentType::Json = "Content-Type: application/json";
 string HttpContentType::Text = "Content-Type: text/html";
+string HttpContentType::Xml = "Content-Type: text/xml";
 string HttpContentType::FormData = "Content-Type: multipart/form-data";
+
 
 /// Request
 //////////////////////////////////////////////////////////////////
@@ -18,13 +20,15 @@ HttpRequest::HttpRequest(string pUrl):url(pUrl),text(""),_headers(NULL),contentT
 
 HttpRequest::~HttpRequest()
 {
-    if (_headers)
-        curl_slist_free_all(_headers);
-
     if (_curl)
         curl_free(_curl);
 
-    safe_del(_params);
+    if (_params)
+    {
+        _params->clear();
+        safe_del(_params);
+    }
+
 }
 
 HttpRequest *HttpRequest::AddParam(string key, string val)
@@ -100,12 +104,18 @@ string HttpRequestGet::Connect()
         }
 
         curl_easy_cleanup(_curl);
+        curl_slist_free_all(_headers);
     }
 }
 
 void HttpRequestGet::Callback(string retText)
 {
     HttpRequest::Callback(retText);
+}
+
+HttpRequestGet::~HttpRequestGet()
+{
+
 }
 
 /// HttpRequestPost
@@ -147,5 +157,12 @@ string HttpRequestPost::Connect()
         }
 
         curl_easy_cleanup(_curl);
+        curl_slist_free_all(_headers);
     }
 }
+
+HttpRequestPost::~HttpRequestPost()
+{
+
+}
+
