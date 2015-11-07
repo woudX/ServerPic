@@ -2,6 +2,7 @@
 #include "function.h"
 #include "createproc.h"
 #include "cthread.h"
+#include "convert.h"
 
 BasicCommand::BasicCommand(vector<string> params, char splitChar)
 {
@@ -35,11 +36,13 @@ FormalCommand::FormalCommand(vector<string> param, char splitChar):BasicCommand(
 
 void FormalCommand::Execute()
 {
-    if (_params.size() < 1)
+    if (_params.size() < 2)
         return ;
 
     string filename = _params[0];
-    _createProc = new CreateProc(filename);
+    int pid = Convert::ToInt(_params[1]);
+
+    _createProc = new CreateProc(filename, pid);
 
     //  Run command
     _t = new CThread([](FormalCommand *_this) {

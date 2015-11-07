@@ -27,6 +27,10 @@ public:
      */
     void Load(JsonObject *jsonObj);
 
+    int listen_port;
+    string push_json_url;
+    string push_json_url_key;
+
     string ext_cmd;
     string ext_dir;
     string zip_filter_regex;

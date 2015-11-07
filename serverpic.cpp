@@ -16,13 +16,20 @@ ServerPic::ServerPic()
     _cmdMgr = new CommandMgr();
 }
 
-int ServerPic::Install()
+int ServerPic::Install(int argc, char *argv[])
 {
+    //  check params count
+
+    if (argc < 2)
+        return 1;
+
+    string configUrl(argv[1]);
+
     //  init libcurl
     curl_global_init(CURL_GLOBAL_ALL);
 
     //  init system config
-    HttpRequest *configReq = new HttpRequestGet("http://192.168.89.1/Test/config.json");
+    HttpRequest *configReq = new HttpRequestGet(configUrl);
     configReq->contentType = HttpContentType::Json;
     configReq->Connect();
     if (configReq->text.empty())
@@ -65,20 +72,6 @@ ServerPic::~ServerPic()
 
 }
 
-void ServerPic::_CreateProcFunc(string filename)
-{
-    string zipFilename(filename);
-
-    CreateProc *proc = new CreateProc(filename);
-    thread t([](CreateProc *cp) {
-        cp->Init();
-        cp->Run();
-        safe_del(cp);
-    }, proc);
-
-    t.detach();
-}
-
 void ServerPic::_StartServer()
 {
     int sockfd, newsockfd, portno;
@@ -91,19 +84,26 @@ void ServerPic::_StartServer()
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0)
     {
-        debug_log("error opening socket : %d\n", sockfd);
+        err_log("error opening socket : %s\n", strerror(errno));
+        return;
+    }
+
+    int reuse;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse, sizeof(int)) == -1)
+    {
+        err_log("error set resue port : %s\n", strerror(errno));
         return;
     }
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    portno = 8999;
+    portno = AppSetting::Instance()->listen_port;
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
     serv_addr.sin_port = htons(portno);
 
     if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
-        debug_log("%s\n","error on binding");
+        err_log("error on binding : %s\n",strerror(errno));
         return;
     }
 
@@ -116,7 +116,7 @@ void ServerPic::_StartServer()
 
         if (newsockfd < 0)
         {
-            debug_log("error on acceptig : %d\n", newsockfd);
+            err_log("error on acceptig : %s\n", strerror(errno));
             continue;
         }
 
@@ -125,7 +125,7 @@ void ServerPic::_StartServer()
 
         if (n < 0)
         {
-            debug_log("error on read buffer : %d", n);
+            err_log("error on read buffer : %s", strerror(errno));
             continue;
         }
 
@@ -140,6 +140,7 @@ void ServerPic::_StartServer()
         //  feedback infos
         n = write(newsockfd, "got it", 6);
     }
+
     close(newsockfd);
     close(sockfd);
     return ;

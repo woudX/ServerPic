@@ -29,6 +29,11 @@ AppSetting::AppSetting()
 
 void AppSetting::Load(JsonObject *jsonObj)
 {
+    //  Load sys_config
+    JsonObject *sysConfig = jsonObj->GetObjectVal<JsonObject>("sys_config");
+    listen_port = sysConfig->GetIntVal("listen_port");
+    safe_del(sysConfig);
+
     //  Load zip_config
     JsonObject *zipConfig = jsonObj->GetObjectVal<JsonObject>("zip_config");
     ext_cmd = zipConfig->GetStringVal("extract_command");
@@ -40,6 +45,8 @@ void AppSetting::Load(JsonObject *jsonObj)
     JsonObject *mainConfig = jsonObj->GetObjectVal<JsonObject>("main_config");
     file_save_dir = mainConfig->GetStringVal("file_save_directory");
     file_override = mainConfig->GetIntVal("file_override");
+    push_json_url = mainConfig->GetStringVal("push_json_url");
+    push_json_url_key = mainConfig->GetStringVal("push_json_url_key");
 
     pic_size = new map<string, Vector2d*>();
     JsonArray *picJsonArr = mainConfig->GetObjectVal<JsonArray>("pic_size");

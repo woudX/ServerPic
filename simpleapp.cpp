@@ -5,7 +5,7 @@ SimpleApp::SimpleApp()
 
 }
 
-int SimpleApp::Install()
+int SimpleApp::Install(int argc, char *argv[])
 {
     return 0;
 }

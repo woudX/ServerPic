@@ -14,3 +14,8 @@ string Convert::ToString(long value)
     return stream.str();
 }
 
+int Convert::ToInt(string value)
+{
+    return atoi(value.c_str());
+}
+

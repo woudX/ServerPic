@@ -4,9 +4,15 @@
 int main(int argc, char* argv[])
 {
     ServerPic *mainApp = new ServerPic();
-    mainApp->Install();
-    mainApp->Run(argc, argv);
-    mainApp->Uninstall();
+    if (mainApp->Install(argc, argv) == 0)
+    {
+        mainApp->Run(argc, argv);
+        mainApp->Uninstall();
+    }
+    else
+    {
+        debug_log("%s\n", "please input config.json url");
+    }
 
     safe_del(mainApp);
 

@@ -5,14 +5,15 @@
 #include "zextractor.h"
 #include "assist.h"
 #include "jsonx.h"
+#include "assist.h"
 #include "opencvex.h"
-
+#include "network.h"
 CreateProc::CreateProc()
 {
     _filesMapping = new map<string, string>();
 }
 
-CreateProc::CreateProc(string fullname):zipFullname(fullname)
+CreateProc::CreateProc(string fullname, int pid):zipFullname(fullname),_pid(pid)
 {
     _filesMapping = new map<string, string>();
 }
@@ -54,7 +55,7 @@ void CreateProc::Run()
 
     //  Resize and copy files
     JsonObject *projData = new JsonObject();
-    projData->Add("pid",3);
+    projData->Add("pid",_pid);
 
     JsonArray *pages = new JsonArray();
     projData->AddObject("pages", pages);
@@ -66,26 +67,41 @@ void CreateProc::Run()
 
         string srcFilename = FileSys::GetFilename(fileItor->first);
         string saveFilename = FileSys::GetFilename(fileItor->second);
+        string fileExtension = FileSys::GetFileExtension(fileItor->first);
 
         singleFile->Add("filename", srcFilename);
-        singleFile->Add("savename", saveFilename);
-        singleFile->Add("imagedir", FileSys::GetFileDirectory(fileItor->first));
+        singleFile->Add("imagedir", fileItor->first);
 
         for (auto sizeItor = setting->pic_size->begin(); sizeItor != setting->pic_size->end(); ++sizeItor)
         {
             string optDir = FileSys::FormatDir(setting->file_save_dir + FileSys::GetFileFullPathWithoutExtension(_zipFilename) + "/" + sizeItor->first);
             FileSys::CreateDirectory(optDir);
+
+            //  Resize Picture, but need to rename
+            saveFilename = Assist::GenerateRandomFilename(saveFilename) + fileExtension;
             OpencvEx::ResizePictureFile(fileItor->second, optDir + saveFilename, sizeItor->second->x, sizeItor->second->y);
 
             debug_log(" %s --> %s : finished!\n", (optDir + saveFilename).c_str(),  sizeItor->first.c_str());
-            singleFile->Add("image" + sizeItor->first, optDir);
+            singleFile->Add("image" + sizeItor->first, optDir + saveFilename);
         }
 
         pages->AddObject(singleFile);
         safe_del(singleFile);
     }
-    projData->SaveToFile("output.json");
 
+    //  push to server
+    HttpRequestPost *postJson = new HttpRequestPost(setting->push_json_url);
+    postJson->contentType = HttpContentType::Json;
+    postJson->AddParam(setting->push_json_url_key, projData->ToString());
+    postJson->Connect();
+    debug_log("push complete: %s\n", postJson->text.c_str());
+
+#ifdef Debug
+    //  save json to file
+    //  projData->SaveToFile("output.json");
+#endif
+
+    safe_del(postJson);
     safe_del(pages);
     safe_del(projData);
 }
@@ -144,6 +160,11 @@ void CreateProc::_ResizeAndCopyFiles(string folderName, int width, int height)
         inputPic.release();
         outputPic.release();
     }
+}
+
+void CreateProc::_PushJsonToServer(string value)
+{
+
 }
 
 

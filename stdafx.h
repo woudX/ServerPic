@@ -8,6 +8,7 @@
 #include <sys/time.h>
 #include <signal.h>
 #include <netinet/in.h>
+#include <errno.h>
 
 //  Build-in C
 #include <stdlib.h>
@@ -41,7 +42,7 @@ using namespace cv;
 #define safe_del(x) do { if ((x) != NULL) delete (x); } while(false)
 #define safe_del_container(val)                                     \
 do {                                                                \
-    for (auto itor = val.begin(); itor != val.end(); ++itor)         \
+    for (auto itor = val.begin(); itor != val.end(); ++itor)        \
     {                                                               \
         safe_del(*itor);                                            \
         (*itor) = NULL;                                             \

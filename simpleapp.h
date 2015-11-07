@@ -8,7 +8,7 @@ class SimpleApp
 public:
     SimpleApp();
 
-    virtual int Install();
+    virtual int Install(int argc, char *argv[]);
     virtual int Run(int argc, char* argv[]);
     virtual int Uninstall();
 

@@ -61,3 +61,13 @@ after download, followed by
 use these command to get include/lib  
 `$ curl-config --cflags`  
 `$ curl-config --libs`  
+
+使用说明  
+=======  
+部署好上述环境后，按照以下步骤操作即可：  
+  * 在Build/目录下找到ServerPic，并拷贝到想要放置的位置  
+  * 找到配置文件Build/config.json，修改其中的参数，并放置到能通过http访问的位置上
+  * 运行ServicePic，需要添加配置文件的URL参数信息，配置文件在Build/config.json处以供参考，一般运行命令如下  
+`$ ./ServerPic http://192.168.89.1/Test/config.json`  
+
+这样一来服务器就能够正常启动了  
