@@ -62,12 +62,22 @@ use these command to get include/lib
 `$ curl-config --cflags`  
 `$ curl-config --libs`  
 
-使用说明  
-=======  
+使用说明
+======= 
+启动服务器
+--------------
 部署好上述环境后，按照以下步骤操作即可：  
   * 在Build/目录下找到ServerPic，并拷贝到想要放置的位置  
   * 找到配置文件Build/config.json，修改其中的参数，并放置到能通过http访问的位置上
   * 运行ServicePic，需要添加配置文件的URL参数信息，配置文件在Build/config.json处以供参考，一般运行命令如下  
 `$ ./ServerPic http://192.168.89.1/Test/config.json`  
 
-这样一来服务器就能够正常启动了  
+指令说明
+--------------
+服务器启动后，需要通过socket接口进行访问，本程序目前支持如下访问指令：  
+**formal,[arg1],[arg2]**：主要流程命令，负责解压缩到完成图片整个处理过程，并向服务器发出json字符串，参数说明：  
+  * [arg1]:zip的相对或者绝对路径  
+  * [arg2]:该zip所对应的工程号  
+`Demo command : formal,Desktop.zip,15`  
+  
+**exit**:命令服务器停止运行的指令
