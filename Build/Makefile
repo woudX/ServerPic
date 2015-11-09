@@ -1010,7 +1010,8 @@ createproc.o: ../createproc.cpp ../createproc.h \
 		../assist.h \
 		../jsonx.h \
 		../convert.h \
-		../opencvex.h
+		../opencvex.h \
+		../network.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o createproc.o ../createproc.cpp
 
 function.o: ../function.cpp ../function.h \
@@ -1344,7 +1345,8 @@ commands.o: ../commands.cpp ../commands.h \
 		/usr/local/include/curl/typecheck-gcc.h \
 		../function.h \
 		../createproc.h \
-		../cthread.h
+		../cthread.h \
+		../convert.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o commands.o ../commands.cpp
 
 commandmgr.o: ../commandmgr.cpp ../commandmgr.h \

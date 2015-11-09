@@ -33,34 +33,48 @@ void CreateProc::Init()
     _zipFilename = splits.at(splits.size() - 1);
     _extension = FileSys::GetFileExtension(_zipFilename);
 
-    string nameWithoutExt = FileSys::GetFileFullPathWithoutExtension(_zipFilename);
-    _extDir = FileSys::FormatDir(setting->ext_dir + nameWithoutExt);
-    _leveloffDir = FileSys::FormatDir(setting->file_save_dir + nameWithoutExt + "/original");
+    _zipRandName = Assist::GenerateRandomFilename(FileSys::GetFileFullPathWithoutExtension(_zipFilename));
+    _extDir = FileSys::FormatDir(setting->ext_dir + _zipRandName);
+    _leveloffDir = FileSys::FormatDir(setting->file_save_dir + _zipRandName + "/original");
 }
 
 void CreateProc::Run()
 {
     AppSetting *setting = AppSetting::Instance();
 
-    //  Extract zip file
-    ZExtractor::Extract(zipFullname, _extDir);
-
-    //  Level off zip_dir to file_dir
-    debug_log("------------------ Level off : %s ------------------\n", _zipFilename.c_str());
-    //FileSys::DeleteFile(setting->file_save_dir + FileSys::GetFileFullPathWithoutExtension(_zipFilename));
+    ZExtractor::Extract(zipFullname, _extDir, true);
     FileSys::LevelOff(_extDir, FileOverride::RenameWithOrder, setting->zip_filter_regex, _leveloffDir);
-
-    //  Rename all files
     _RenameFiles();
+    _ResizeFiles();
 
-    //  Resize and copy files
+}
+
+void CreateProc::_RenameFiles()
+{
+    list<string> *files = FileSys::GetAllFilename(_leveloffDir);
+    for (list<string>::iterator itor = files->begin(); itor != files->end(); ++itor)
+    {
+        string oldName = _leveloffDir + (*itor);
+        string newName = _leveloffDir + Assist::GenerateRandomFilename(*itor) + FileSys::GetFileExtension(*itor);
+
+        rename(oldName.c_str(), newName.c_str());
+        _filesMapping->insert(make_pair(oldName, newName));
+    }
+
+    files->clear();
+    safe_del(files);
+}
+
+void CreateProc::_ResizeFiles()
+{
+    AppSetting *setting = AppSetting::Instance();
+
     JsonObject *projData = new JsonObject();
     projData->Add("pid",_pid);
 
     JsonArray *pages = new JsonArray();
     projData->AddObject("pages", pages);
 
-    debug_log("------------------ Resize : %s ------------------\n", _zipFilename.c_str());
     for (auto fileItor = _filesMapping->begin(); fileItor != _filesMapping->end(); ++fileItor)
     {
         JsonObject *singleFile = new JsonObject();
@@ -74,14 +88,13 @@ void CreateProc::Run()
 
         for (auto sizeItor = setting->pic_size->begin(); sizeItor != setting->pic_size->end(); ++sizeItor)
         {
-            string optDir = FileSys::FormatDir(setting->file_save_dir + FileSys::GetFileFullPathWithoutExtension(_zipFilename) + "/" + sizeItor->first);
+            string optDir = FileSys::FormatDir(setting->file_save_dir + _zipRandName + "/" + sizeItor->first);
             FileSys::CreateDirectory(optDir);
 
             //  Resize Picture, but need to rename
             saveFilename = Assist::GenerateRandomFilename(saveFilename) + fileExtension;
             OpencvEx::ResizePictureFile(fileItor->second, optDir + saveFilename, sizeItor->second->x, sizeItor->second->y);
 
-            debug_log(" %s --> %s : finished!\n", (optDir + saveFilename).c_str(),  sizeItor->first.c_str());
             singleFile->Add("image" + sizeItor->first, optDir + saveFilename);
         }
 
@@ -90,81 +103,23 @@ void CreateProc::Run()
     }
 
     //  push to server
-    HttpRequestPost *postJson = new HttpRequestPost(setting->push_json_url);
-    postJson->contentType = HttpContentType::Json;
-    postJson->AddParam(setting->push_json_url_key, projData->ToString());
-    postJson->Connect();
-    debug_log("push complete: %s\n", postJson->text.c_str());
+    _PushJsonToServer(projData->ToString());
 
-#ifdef Debug
-    //  save json to file
-    //  projData->SaveToFile("output.json");
-#endif
-
-    safe_del(postJson);
     safe_del(pages);
     safe_del(projData);
 }
 
-void CreateProc::_RenameFiles()
-{
-    debug_log("------------------ Rename : %s ------------------\n", _zipFilename.c_str());
-
-    list<string> *files = FileSys::GetAllFilename(_leveloffDir);
-    for (list<string>::iterator itor = files->begin(); itor != files->end(); ++itor)
-    {
-        string oldName = _leveloffDir + (*itor);
-        string newName = _leveloffDir + Assist::GenerateRandomFilename(*itor) + FileSys::GetFileExtension(*itor);
-
-        rename(oldName.c_str(), newName.c_str());
-        _filesMapping->insert(make_pair(oldName, newName));
-
-        debug_log("%s --> %s\n", oldName.c_str(), newName.c_str());
-    }
-
-    files->clear();
-    safe_del(files);
-}
-
-void CreateProc::_ResizeAndCopyFiles(string folderName, int width, int height)
+void CreateProc::_PushJsonToServer(string value)
 {
     AppSetting *setting = AppSetting::Instance();
 
-    //  create objDir
-    string objDir = FileSys::FormatDir(setting->file_save_dir + FileSys::GetFileFullPathWithoutExtension(_zipFilename));
-    objDir = FileSys::FormatDir(objDir + folderName);
-    FileSys::CreateDirectory(objDir);
+    //  push to server
+    HttpRequestPost *postJson = new HttpRequestPost(setting->push_json_url);
+    postJson->contentType = HttpContentType::Json;
+    postJson->AddParam(setting->push_json_url_key, value);
+    postJson->Connect();
 
-    for (auto itor = _filesMapping->begin(); itor != _filesMapping->end(); ++itor)
-    {
-        string filename = FileSys::GetFilename(itor->second);
-        Mat inputPic = imread(itor->second, IMREAD_COLOR);
-        Mat outputPic;
-
-        //  calculate best factor
-        double fx =  width / (double)(inputPic.cols);
-        double fy = height / (double)(inputPic.rows);
-        double factor = max(fx, fy);
-
-        //  resize pic
-        if (fx > 1.0f || fy > 1.0f)
-            outputPic = inputPic.clone();
-        else
-            resize(inputPic, outputPic, Size(0, 0), factor, factor, INTER_LANCZOS4);
-
-        //  output
-        string outputFilename = objDir + filename;
-        imwrite(outputFilename.c_str(), outputPic);
-
-        //  release
-        inputPic.release();
-        outputPic.release();
-    }
-}
-
-void CreateProc::_PushJsonToServer(string value)
-{
-
+    safe_del(postJson);
 }
 
 

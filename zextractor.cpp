@@ -7,7 +7,7 @@ void ZExtractor::Extract(string filename)
     ZExtractor::Extract(filename, "");
 }
 
-void ZExtractor::Extract(string filename, string extDirectory)
+void ZExtractor::Extract(string filename, string extDirectory, bool deleteFlag)
 {
     string extCmd = AppSetting::Instance()->ext_cmd + " " + filename;
 
@@ -18,9 +18,12 @@ void ZExtractor::Extract(string filename, string extDirectory)
     //  create zip directory
     FileSys::CreateDirectory(extDirectory);
 
-    //  output debug info
-    cout << "command : " << extCmd << endl;
-
+    //  extract zip
     system(extCmd.c_str());
+
+    //  delete zip file
+    if (deleteFlag)
+        FileSys::DeleteFile(filename);
+
 
 }

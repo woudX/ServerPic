@@ -20,6 +20,7 @@ public:
 
 private:
     string _zipFilename;
+    string _zipRandName;
     string _extension;
     string _extDir;
     string _leveloffDir;
@@ -28,7 +29,7 @@ private:
     map<string, string> *_filesMapping;
 
     void _RenameFiles();
-    void _ResizeAndCopyFiles(string folderName, int width, int height);
+    void _ResizeFiles();
     void _PushJsonToServer(string value);
 };
 

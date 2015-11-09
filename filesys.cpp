@@ -27,54 +27,52 @@ void FileSys::LevelOff(string srcDirectory, FileOverride overrideFlag, string ex
             fullPath.append(ent->d_name);
 
             //  get file stat
-            int statErr = stat(fullPath.c_str(), &st);
-            if (statErr == 0)
-            {
-                if (S_ISDIR(st.st_mode))
-                {
-                    fullPath.append("/");
-                    LevelOff(fullPath, overrideFlag, extRegex, objDir, depth + 1);
 
-                    //  Delete directory
-                    DeleteFile(fullPath);
-                }
-                else if (S_ISREG(st.st_mode))
+            if (IsDir(fullPath))
+            {
+                fullPath.append("/");
+                LevelOff(fullPath, overrideFlag, extRegex, objDir, depth + 1);
+            }
+            else if (IsFile(fullPath))
+            {
+                //  check if need regex
+                if (extRegex.empty())
                 {
-                    //  check if need regex
-                    if (extRegex.empty())
+                    MoveFileResult result = MoveFile(FormatDir(srcDirectory), FormatDir(objDir),
+                             string(ent->d_name), overrideFlag);
+
+                    if (result == MoveFileResult::FileHasExist)
                     {
-                        MoveFileResult result = MoveFile(FormatDir(srcDirectory), FormatDir(objDir),
+                        string filepath = FormatDir(srcDirectory) + string(ent->d_name);
+                        DeleteFile(filepath);
+                        debug_log("delete file : %s\n", filepath.c_str());
+                    }
+                }
+                else
+                {
+                    //  regex pic
+                    bool regSucc = RegexFileExt(string(ent->d_name), extRegex);
+                    MoveFileResult result = MoveFileResult::SameDirectory;
+
+                    if (regSucc)
+                        result = MoveFile(FormatDir(srcDirectory), FormatDir(objDir),
                                  string(ent->d_name), overrideFlag);
 
-                        if (result == MoveFileResult::FileHasExist)
-                        {
-                            string filepath = FormatDir(srcDirectory) + string(ent->d_name);
-                            DeleteFile(filepath);
-                            debug_log("delete file : %s\n", filepath.c_str());
-                        }
-                    }
-                    else
+                    //  Delete source file
+                    if (!regSucc || result == MoveFileResult::FileHasExist)
                     {
-                        //  regex pic
-                        bool regSucc = RegexFileExt(string(ent->d_name), extRegex);
-                        MoveFileResult result = MoveFileResult::SameDirectory;
-
-                        if (regSucc)
-                            result = MoveFile(FormatDir(srcDirectory), FormatDir(objDir),
-                                     string(ent->d_name), overrideFlag);
-
-                        //  Delete source file
-                        if (!regSucc || result == MoveFileResult::FileHasExist)
-                        {
-                            string filepath = FormatDir(srcDirectory) + string(ent->d_name);
-                            DeleteFile(filepath);
-                            debug_log("delete file : %s\n", filepath.c_str());
-                        }
+                        string filepath = FormatDir(srcDirectory) + string(ent->d_name);
+                        DeleteFile(filepath);
+                        debug_log("delete file : %s\n", filepath.c_str());
                     }
                 }
             }
         }
     }
+
+    //  Delete if this file is folder
+    if (IsDir(srcDirectory))
+        DeleteFile(srcDirectory);
 
     closedir(pDir);
 }
@@ -196,30 +194,8 @@ string FileSys::GetFilename(string filepath)
 
 void FileSys::DeleteFile(string filepath)
 {
-    DIR *dir;
-    dirent *dir_info;
-
-    if (IsFile(filepath))
-    {
+    if (IsFileExist(filepath))
         remove(filepath.c_str());
-        return ;
-    }
-    else if (IsDir(filepath))
-    {
-        string pathTmp = FileSys::FormatDir(filepath);
-
-        if ((dir = opendir(pathTmp.c_str())) == NULL)
-            return ;
-
-        while ((dir_info = readdir(dir)) != NULL)
-        {
-            string fullpath = FormatDir(pathTmp) + dir_info->d_name;
-            if (IsSpecialDir(fullpath))
-                continue;
-            DeleteFile(fullpath);
-            rmdir(filepath.c_str());
-        }
-    }
 }
 
 bool FileSys::IsFile(string filepath)
@@ -272,7 +248,6 @@ MoveFileResult FileSys::MoveFile(string srcFilename, string objFilename, FileOve
     CreateDirectory(GetFileDirectory(objFilename));
     rename(srcFilename.c_str(), finalObjFilename.c_str());
 
-    debug_log("Move %s to %s\n", srcFilename.c_str(), finalObjFilename.c_str());
     return MoveFileResult::OK;
 }
 
