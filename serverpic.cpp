@@ -11,17 +11,17 @@ ServerPic::ServerPic()
 
 int ServerPic::Install(int argc, char *argv[])
 {
-    //string configUrl("http://192.168.89.1/Test/config.json");
+    string configUrl("http://192.168.89.1/Test/config.json");
     //  init error
     ErrorInfo::Init();
-
+/*
     //  check params count
     if (argc < 2)
         return INVALID_ARGV_NUMBERS;
 
     //  load argv
     string configUrl(argv[1]);
-
+*/
     //  init libcurl
     curl_global_init(CURL_GLOBAL_ALL);
 

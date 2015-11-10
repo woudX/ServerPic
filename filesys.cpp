@@ -308,5 +308,6 @@ bool FileSys::RegexFileExt(string filepath, string regexPtn)
 
 bool FileSys::IsSpecialDir(string filepath)
 {
-    return filepath == "." || filepath == "..";
+    return FileSys::GetFilename(filepath) == "."
+            || FileSys::GetFilename(filepath) == "..";
 }
