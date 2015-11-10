@@ -1,15 +1,8 @@
 #include "serverpic.h"
-#include "zextractor.h"
-#include "filesys.h"
-#include "assist.h"
-#include "global.h"
-#include "opencvex.h"
-#include "jsonx.h"
+#include "stdinc.h"
 #include "createproc.h"
-#include "network.h";
 #include "commandmgr.h"
-#include "cthread.h"
-#include "function.h"
+
 
 ServerPic::ServerPic()
 {
@@ -18,11 +11,15 @@ ServerPic::ServerPic()
 
 int ServerPic::Install(int argc, char *argv[])
 {
+    //string configUrl("http://192.168.89.1/Test/config.json");
+    //  init error
+    ErrorInfo::Init();
+
     //  check params count
-
     if (argc < 2)
-        return 1;
+        return INVALID_ARGV_NUMBERS;
 
+    //  load argv
     string configUrl(argv[1]);
 
     //  init libcurl
@@ -33,7 +30,7 @@ int ServerPic::Install(int argc, char *argv[])
     configReq->contentType = HttpContentType::Json;
     configReq->Connect();
     if (configReq->text.empty())
-        return 1;
+        return EMPTY_CONFIG_FILE;
 
     AppSetting *setting = AppSetting::Instance();
     JsonObject *jsonObj = new JsonObject();
@@ -44,7 +41,7 @@ int ServerPic::Install(int argc, char *argv[])
     safe_del(jsonObj);
     safe_del(configReq);
 
-    return 0;
+    return NO_ERROR;
 }
 
 int ServerPic::Uninstall()

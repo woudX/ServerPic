@@ -1,15 +1,23 @@
 #include "commands.h"
-#include "function.h"
 #include "createproc.h"
-#include "cthread.h"
-#include "convert.h"
+#include "stdinc.h"
 
-BasicCommand::BasicCommand(vector<string> params, char splitChar)
+BasicCommand::BasicCommand(vector<string> params, char splitChar):result(-1)
 {
     _params = params;
 }
 
+void BasicCommand::OnStart()
+{
+    debug_log("%s\n", "please inherite this method!");
+}
+
 void BasicCommand::Execute()
+{
+    debug_log("%s\n", "please inherite this method!");
+}
+
+void BasicCommand::OnFinished()
 {
     debug_log("%s\n", "please inherite this method!");
 }
@@ -34,7 +42,7 @@ FormalCommand::FormalCommand(vector<string> param, char splitChar):BasicCommand(
 
 }
 
-void FormalCommand::Execute()
+void FormalCommand::OnStart()
 {
     if (_params.size() < 2)
         return ;
@@ -44,13 +52,31 @@ void FormalCommand::Execute()
 
     _createProc = new CreateProc(filename, pid);
 
-    //  Run command
-    _t = new CThread([](FormalCommand *_this) {
-        _this->_createProc->Init();
-        _this->_createProc->Run();
-    }, this);
+    log("formal command start : pid - %d, file - %s\n",
+        _createProc->PID(), _createProc->zipFullname.c_str());
+}
 
-    _t->Detach();
+void FormalCommand::Execute()
+{
+    if (_createProc)
+    {
+        //  Run command
+        _t = new CThread([](FormalCommand *_this) {
+            _this->_createProc->Init();
+            _this->result = _this->_createProc->Run();
+        }, this);
+
+        _t->Detach();
+    }
+    else
+    {
+        result = 0;
+    }
+}
+
+void FormalCommand::OnFinished()
+{
+    log("project (%d) formal finished : %s(%d)\n", _createProc->PID(), error_msg(result), result);
 }
 
 FormalCommand::~FormalCommand()

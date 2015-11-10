@@ -1,13 +1,6 @@
 #include "createproc.h"
-#include "global.h"
-#include "function.h"
-#include "filesys.h"
-#include "zextractor.h"
-#include "assist.h"
-#include "jsonx.h"
-#include "assist.h"
-#include "opencvex.h"
-#include "network.h"
+#include "stdinc.h"
+
 CreateProc::CreateProc()
 {
     _filesMapping = new map<string, string>();
@@ -38,15 +31,41 @@ void CreateProc::Init()
     _leveloffDir = FileSys::FormatDir(setting->file_save_dir + _zipRandName + "/original");
 }
 
-void CreateProc::Run()
+int CreateProc::Run()
 {
     AppSetting *setting = AppSetting::Instance();
+    int result;
 
-    ZExtractor::Extract(zipFullname, _extDir, true);
+    //  Extract zip
+    if ((result = ZExtractor::Extract(zipFullname, _extDir, true)) != NO_ERROR)
+    {
+        err_log("error : %s\n", error_msg(result));
+        return result;
+    }
+    else
+    {
+        if (FileSys::IsEmptyDir(_extDir))
+        {
+            FileSys::DeleteFile(_extDir);
+            return EMPTY_ZIP_FILE;
+        }
+    }
+
+    //  Level off dir
     FileSys::LevelOff(_extDir, FileOverride::RenameWithOrder, setting->zip_filter_regex, _leveloffDir);
+
+    //  Rename files
     _RenameFiles();
+
+    //  Resize and push json
     _ResizeFiles();
 
+    return NO_ERROR;
+}
+
+int CreateProc::PID()
+{
+    return _pid;
 }
 
 void CreateProc::_RenameFiles()

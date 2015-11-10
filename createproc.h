@@ -11,12 +11,13 @@ public:
     ~CreateProc();
 
     void Init();
-    void Run();
-
+    int Run();
+    int PID();
     /**
      * @brief file which will be process
      */
     string zipFullname;
+
 
 private:
     string _zipFilename;

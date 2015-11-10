@@ -63,7 +63,8 @@ SOURCES       = ../main.cpp \
 		../simpleapp.cpp \
 		../serverpic.cpp \
 		../commands.cpp \
-		../commandmgr.cpp 
+		../commandmgr.cpp \
+		../errorinfo.cpp 
 OBJECTS       = main.o \
 		global.o \
 		zextractor.o \
@@ -79,7 +80,8 @@ OBJECTS       = main.o \
 		simpleapp.o \
 		serverpic.o \
 		commands.o \
-		commandmgr.o
+		commandmgr.o \
+		errorinfo.o
 DIST          = /home/Qt5.5.1/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		/home/Qt5.5.1/5.5/gcc_64/mkspecs/common/unix.conf \
 		/home/Qt5.5.1/5.5/gcc_64/mkspecs/common/linux.conf \
@@ -224,7 +226,9 @@ DIST          = /home/Qt5.5.1/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		simpleapp.h \
 		serverpic.h \
 		commands.h \
-		commandmgr.h ../main.cpp \
+		commandmgr.h \
+		stdinc.h \
+		errorinfo.h ../main.cpp \
 		../global.cpp \
 		../zextractor.cpp \
 		../filesys.cpp \
@@ -239,7 +243,8 @@ DIST          = /home/Qt5.5.1/5.5/gcc_64/mkspecs/features/spec_pre.prf \
 		../simpleapp.cpp \
 		../serverpic.cpp \
 		../commands.cpp \
-		../commandmgr.cpp
+		../commandmgr.cpp \
+		../errorinfo.cpp
 QMAKE_TARGET  = ServerPic
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = ServerPic
@@ -1278,18 +1283,20 @@ serverpic.o: ../serverpic.cpp ../serverpic.h \
 		/usr/local/include/curl/curlrules.h \
 		/usr/local/include/curl/easy.h \
 		/usr/local/include/curl/typecheck-gcc.h \
-		../zextractor.h \
-		../filesys.h \
+		../stdinc.h \
 		../assist.h \
 		../global.h \
-		../opencvex.h \
-		../jsonx.h \
 		../convert.h \
-		../createproc.h \
-		../network.h \
-		../commandmgr.h \
+		../errorinfo.h \
+		../jsonx.h \
+		../filesys.h \
 		../cthread.h \
-		../function.h
+		../network.h \
+		../opencvex.h \
+		../function.h \
+		../zextractor.h \
+		../createproc.h \
+		../commandmgr.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o serverpic.o ../serverpic.cpp
 
 commands.o: ../commands.cpp ../commands.h \
@@ -1403,6 +1410,59 @@ commandmgr.o: ../commandmgr.cpp ../commandmgr.h \
 		../commands.h \
 		../function.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o commandmgr.o ../commandmgr.cpp
+
+errorinfo.o: ../errorinfo.cpp ../errorinfo.h \
+		../stdafx.h \
+		/usr/local/include/opencv2/core.hpp \
+		/usr/local/include/opencv2/core/cvdef.h \
+		/usr/local/include/opencv2/hal/defs.h \
+		/usr/local/include/opencv2/core/version.hpp \
+		/usr/local/include/opencv2/core/base.hpp \
+		/usr/local/include/opencv2/core/cvstd.hpp \
+		/usr/local/include/opencv2/core/ptr.inl.hpp \
+		/usr/local/include/opencv2/hal.hpp \
+		/usr/local/include/opencv2/core/sse_utils.hpp \
+		/usr/local/include/opencv2/core/traits.hpp \
+		/usr/local/include/opencv2/core/matx.hpp \
+		/usr/local/include/opencv2/core/types.hpp \
+		/usr/local/include/opencv2/core/mat.hpp \
+		/usr/local/include/opencv2/core/bufferpool.hpp \
+		/usr/local/include/opencv2/core/mat.inl.hpp \
+		/usr/local/include/opencv2/core/persistence.hpp \
+		/usr/local/include/opencv2/core/operations.hpp \
+		/usr/local/include/opencv2/core/cvstd.inl.hpp \
+		/usr/local/include/opencv2/core/utility.hpp \
+		/usr/local/include/opencv2/core/core_c.h \
+		/usr/local/include/opencv2/core/types_c.h \
+		/usr/local/include/opencv2/core/optim.hpp \
+		/usr/local/include/opencv2/imgproc.hpp \
+		/usr/local/include/opencv2/imgproc/imgproc_c.h \
+		/usr/local/include/opencv2/imgproc/types_c.h \
+		/usr/local/include/opencv2/highgui.hpp \
+		/usr/local/include/opencv2/imgcodecs.hpp \
+		/usr/local/include/opencv2/videoio.hpp \
+		/usr/local/include/opencv2/highgui/highgui_c.h \
+		/usr/local/include/opencv2/imgcodecs/imgcodecs_c.h \
+		/usr/local/include/opencv2/videoio/videoio_c.h \
+		/usr/local/include/json-c/json.h \
+		/usr/local/include/json-c/debug.h \
+		/usr/local/include/json-c/linkhash.h \
+		/usr/local/include/json-c/json_object.h \
+		/usr/local/include/json-c/json_inttypes.h \
+		/usr/local/include/json-c/json_config.h \
+		/usr/local/include/json-c/arraylist.h \
+		/usr/local/include/json-c/json_util.h \
+		/usr/local/include/json-c/json_tokener.h \
+		/usr/local/include/json-c/json_object_iterator.h \
+		/usr/local/include/json-c/json_c_version.h \
+		/usr/local/include/curl/multi.h \
+		/usr/local/include/curl/curl.h \
+		/usr/local/include/curl/curlver.h \
+		/usr/local/include/curl/curlbuild.h \
+		/usr/local/include/curl/curlrules.h \
+		/usr/local/include/curl/easy.h \
+		/usr/local/include/curl/typecheck-gcc.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o errorinfo.o ../errorinfo.cpp
 
 ####### Install
 

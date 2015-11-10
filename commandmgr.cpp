@@ -60,9 +60,12 @@ void CommandMgr::Update()
     //  Remove finished cmd
     for (auto item : finishedCmd)
     {
+        //call on finished method
+        item->OnFinished();
+
         _runningList.remove(item);
         safe_del(item);
-        item = nullptr;
+        item = NULL;
     }
     finishedCmd.clear();
 
@@ -87,6 +90,9 @@ CommandMgr::~CommandMgr()
 void CommandMgr::_ExecuteCmd(BasicCommand *pval)
 {
     _runningList.push_back(pval);
+
+    //  call this method before execute
+    pval->OnStart();
 
     pval->Execute();
 }

@@ -84,8 +84,15 @@ public:
      * @brief Get filename
      * @param filepath
      * @return
-     */
+     */    
     static string GetFilename(string filepath);
+
+    /**
+     * @brief return true if filepath's dir is empty
+     * @param filepath
+     * @return
+     */
+    static bool IsEmptyDir(string filepath);
 
     /*
      *  Summary : move a file to another place

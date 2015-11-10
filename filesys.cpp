@@ -192,6 +192,30 @@ string FileSys::GetFilename(string filepath)
     return filepath;
 }
 
+bool FileSys::IsEmptyDir(string filepath)
+{
+    if (IsDir(filepath))
+    {
+        DIR *pDir;
+        struct dirent *ent;
+
+        pDir = opendir(filepath.c_str());
+        while ((ent = readdir(pDir)) != NULL)
+        {
+            string fullpath(FormatDir(filepath) + ent->d_name);
+
+            if (IsSpecialDir(fullpath))
+                continue;
+
+            if (IsDir(filepath) || IsFile(filepath))
+                return false;
+        }
+
+        return true;
+    }
+    return false;
+}
+
 void FileSys::DeleteFile(string filepath)
 {
     if (IsFileExist(filepath))

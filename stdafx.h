@@ -36,7 +36,9 @@ using namespace std;
 using namespace cv;
 
 #define Debug
-#define err_log(format, ...) printf(format, __VA_ARGS__)
+#define log(format, ...) printf(format, __VA_ARGS__)
+#define err_log(format, ...) log(format, __VA_ARGS__)
+
 #define is_null(val) ((val) == NULL)
 #define not_null(val) !is_null(val)
 #define safe_del(x) do { if ((x) != NULL) delete (x); } while(false)
@@ -51,7 +53,7 @@ do {                                                                \
 } while(false)                                                      \
 
 #ifdef Debug
-    #define debug_log(format, ...) err_log(format, __VA_ARGS__)
+    #define debug_log(format, ...) log(format, __VA_ARGS__)
     #define debug_mode 1
 #else
     #define debug_log(format, ...)
