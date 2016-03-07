@@ -29,3 +29,8 @@ void OpencvEx::ResizePictureFile(string src, string opt, int width, int height)
     outputPic.release();
 }
 
+void OpencvEx::DrawText(/*CvArr *img, string text, CvPoint org, const CvFont *font, CvScalar color*/)
+{
+
+}
+
